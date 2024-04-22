@@ -13,7 +13,7 @@ namespace HRM_App
 {
     public partial class hrmlogin : Form
     {
-        public static string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Database1.mdf;Integrated Security=True";
+        public static string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\khuon\Desktop\HRM App\HRM App\Database1.mdf"";Integrated Security=True";
         public string isAdmin = "-1";
         public hrmlogin()
         {
@@ -48,19 +48,19 @@ namespace HRM_App
             {
                 conn.Open();
             }
-            string Username = username_text.Text.Trim();
-            string Password = password_text.Text.Trim();
+            string Username = tb_username.Text.Trim();
+            string Password = tb_password.Text.Trim();
             string query = "SELECT * FROM Account WHERE username = '" + Username + "' AND password = '" + Password + "'";
 
             SqlCommand cmd = new SqlCommand(query, conn);
-            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            cmd.Parameters.AddWithValue("@username", Username);
+            cmd.Parameters.AddWithValue("@password", Password);
 
-            DataSet ds = new DataSet();
-            da.Fill(ds);
+            SqlDataReader reader = cmd.ExecuteReader();
 
-            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            if (reader.Read())
             {
-                isAdmin = ds.Tables[0].Rows[0]["admin"].ToString();
+                isAdmin = reader["admin"].ToString();
                 hrmmain _hrmmain = new hrmmain(isAdmin);
                 _hrmmain.Show();
                 this.Hide();
@@ -70,6 +70,7 @@ namespace HRM_App
                 MessageBox.Show("Check the username or password again");
             }
 
+            conn.Close();
 
         }
     }
